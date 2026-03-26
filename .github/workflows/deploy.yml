@@ -8,11 +8,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-            node-version: '24'  # <--- 加上这一行
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
