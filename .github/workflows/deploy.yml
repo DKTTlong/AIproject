@@ -2,7 +2,7 @@ name: Deploy Static Site
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main ]  # 监听 main 分支的推送
 
 jobs:
   deploy:
@@ -15,10 +15,10 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.SERVER_HOST }}  # 你的服务器IP
+          username: ${{ secrets.SERVER_USER }} # 服务器用户名
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # 你的私钥
           port: 22
           script: |
-            cd /path/to/your/site
-            git pull origin main
+            cd /www/wwwroot/WebSite/AItest   # 这里已经改为你截图中的路径
+            git pull origin main      # 拉取最新代码
