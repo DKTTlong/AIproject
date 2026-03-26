@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 效果自评数据</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 管理员页面特有样式 */
+        :root {
+            --primary-color: #2c3e50;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --bg-light: #f8f9fa;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-light); padding: 20px; margin: 0; }
+        
+        .admin-container { max-width: 1400px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .header-actions h1 { margin: 0; color: var(--primary-color); font-size: 1.5rem; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; font-size: 14px; }
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-export { background-color: var(--success-color); color: white; }
+        .btn-delete-selected { background-color: #f39c12; color: white; }
+        .btn-delete-all { background-color: var(--danger-color); color: white; }
+        .btn-back { background-color: #95a5a6; color: white; text-decoration: none; display: inline-block; }
+
+        /* 表格样式 */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f1f1f1; position: sticky; top: 0; z-index: 10; }
+        tr:hover { background-color: #f9f9f9; }
+        
+        .rating-star { color: #f1c40f; }
+        .domain-badge { background: #3498db; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
+
+        /* 分页控件 */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; }
+        .page-btn { background: white; border: 1px solid #ddd; color: #333; }
+        .page-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .page-info { font-weight: bold; color: #666; }
+
+        /* 加载与提示 */
+        #loading { text-align: center; padding: 40px; color: #666; display: none; }
+        .toast { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; background: #333; color: white; border-radius: 4px; display: none; z-index: 1000; animation: slideIn 0.3s ease-out; }
+        .toast.success { background: var(--success-color); }
+        .toast.error { background: var(--danger-color); }
+
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* 登录框动画 */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 主内容区域 (默认隐藏，登录后显示) -->
+<div class="admin-container" id="mainContent" style="display: none;">
+    <div class="header-actions">
+        <h1>📊 效果自评数据管理</h1>
+        <div class="btn-group">
+            <button id="btnExport" class="btn-export" onclick="exportToExcel()">📥 导出 Excel</button>
+            <button id="btnDelSelected" class="btn-delete-selected" onclick="deleteSelected()" disabled>🗑️ 删除选中 (<span id="selectedCount">0</span>)</button>
+            <button id="btnDelAll" class="btn-delete-all" onclick="deleteAllData()">⚠️ 清空所有数据</button>
+            <!-- 退出登录按钮将由 JS 动态插入到这里 -->
+        </div>
+    </div>
+
+    <div id="loading">正在加载数据...</div>
+
+    <div class="table-responsive">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                    <th>ID</th>
+                    <th>日期</th>
+                    <th>课题名称</th>
+                    <th>工具</th>
+                    <th>决策域</th>
+                    <th>评分</th>
+                    <th>效果描述</th>
+                    <th>问题建议</th>
+                    <th>提交时间</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- 数据将通过 JS 插入 -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" id="paginationControls" style="display:none;">
+        <button class="page-btn" onclick="changePage(-1)">上一页</button>
+        <span class="page-info">第 <span id="currentPage">1</span> / <span id="totalPages">1</span> 页</span>
+        <button class="page-btn" onclick="changePage(1)">下一页</button>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- 引入必要的库 -->
+<!-- 1. Supabase -->
+<!-- 使用 esm.sh 获取全局变量 window.supabase -->
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    window.supabase = { createClient };
+</script>
+<!-- 2. PapaParse (用于导出 Excel/CSV) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<!-- 3. 配置文件 -->
+<script type="module" src="js/config.js"></script>
+
+<!-- 4. 认证逻辑 (明文密码版) -->
+<script type="module">
+    import { checkAuth, logout } from './js/auth.js';
+    
+    // 挂载到 window 供 HTML 按钮调用
+    window.logout = logout;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const isAuth = checkAuth();
+        if (isAuth) {
+            addLogoutButton();
+            // 触发数据加载 (如果主逻辑也是 DOMContentLoaded 触发，这里可能需要微调顺序，
+            // 但通常主逻辑会在下面那个 script 里独立运行，只要 mainContent 显示即可)
+            // 为了保险，如果下面的脚本依赖 isAuth，可以在那里再检查一次。
+        }
+    });
+
+    function addLogoutButton() {
+        const btnGroup = document.querySelector('.btn-group');
+        if (btnGroup && !document.getElementById('btnLogout')) {
+            const btn = document.createElement('button');
+            btn.id = 'btnLogout';
+            btn.className = 'btn-back'; 
+            btn.innerText = '🚪 退出登录';
+            btn.style.marginLeft = '10px';
+            btn.onclick = () => window.logout();
+            btnGroup.appendChild(btn);
+        }
+    }
+</script>
+
+<!-- 5. 管理员业务逻辑 -->
+<script type="module">
+    import { SUPABASE_URL, SUPABASE_KEY, EVAL_TABLE_NAME } from './js/config.js';
+
+    // 初始化 Supabase 客户端
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // 配置
+    const ITEMS_PER_PAGE = 100;
+    let currentPage = 1;
+    let totalRows = 0;
+    let totalPages = 0;
+    let currentData = []; // 当前页的数据
+    let selectedIds = new Set(); // 选中的 ID
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        // 双重检查：确保只有登录用户才加载数据
+        if (localStorage.getItem('isAdminLoggedIn') === 'true') {
+            fetchTotalCount();
+        }
+    });
+
+    // 1. 获取总数量以计算页数
+    async function fetchTotalCount() {
+        showLoading(true);
+        const { count, error } = await supabase
+            .from(EVAL_TABLE_NAME)
+            .select('*', { count: 'exact', head: true });
+
+        if (error) {
+            showToast('获取数据总数失败: ' + error.message, 'error');
+            showLoading(false);
+            return;
+        }
+
+        totalRows = count || 0;
+        totalPages = Math.ceil(totalRows / ITEMS_PER_PAGE) || 1;
+        
+        renderPagination();
+        fetchPageData(1);
+    }
+
+    // 2. 获取当前页数据
+    async function fetchPageData(page) {
+        showLoading(true);
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE - 1;
+
+        const { data, error } = await supabase
+            .from(EVAL_TABLE_NAME)
+            .select('*')
+            .order('created_at', { ascending: false }) // 最新的在前面
+            .range(start, end);
+
+        showLoading(false);
+
+        if (error) {
+            showToast('加载数据失败: ' + error.message, 'error');
+            return;
+        }
+
+        currentData = data || [];
+        currentPage = page;
+        renderTable();
+        updatePaginationUI();
+    }
+
+    // 3. 渲染表格
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        selectedIds.clear();
+        updateSelectButton();
+
+        if (currentData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 20px;">暂无数据</td></tr>';
+            return;
+        }
+
+        currentData.forEach(row => {
+            const tr = document.createElement('tr');
+            
+            // 格式化星级
+            let stars = '';
+            for(let i=0; i<(row.rating || 0); i++) stars += '★';
+            
+            tr.innerHTML = `
+                <td><input type="checkbox" class="row-checkbox" value="${row.id}" onchange="toggleRowSelection(${row.id})"></td>
+                <td>${row.id}</td>
+                <td>${row.eval_date || '-'}</td>
+                <td>${escapeHtml(row.topic)}</td>
+                <td>${escapeHtml(row.tool_name)}</td>
+                <td>${escapeHtml(row.domain_code)}</td>
+                <td><span class="rating-star">${stars}</span> (${row.rating || 0})</td>
+                <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(row.description)}">${escapeHtml(row.description)}</td>
+                <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(row.issues)}">${escapeHtml(row.issues)}</td>
+                <td>${row.created_at ? new Date(row.created_at).toLocaleString() : '-'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 4. 分页控制
+    window.changePage = function(delta) {
+        const newPage = currentPage + delta;
+        if (newPage >= 1 && newPage <= totalPages) {
+            fetchPageData(newPage);
+        }
+    };
+
+    function renderPagination() {
+        const controls = document.getElementById('paginationControls');
+        if (totalRows > 0) {
+            controls.style.display = 'flex';
+            updatePaginationUI();
+        } else {
+            controls.style.display = 'none';
+        }
+    }
+
+    function updatePaginationUI() {
+        document.getElementById('currentPage').innerText = currentPage;
+        document.getElementById('totalPages').innerText = totalPages;
+    }
+
+    // 5. 选择逻辑
+    window.toggleRowSelection = function(id) {
+        if (selectedIds.has(id)) {
+            selectedIds.delete(id);
+        } else {
+            selectedIds.add(id);
+        }
+        updateSelectButton();
+        updateSelectAllCheckbox();
+    };
+
+    window.toggleSelectAll = function() {
+        const checkbox = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        
+        if (checkbox.checked) {
+            checkboxes.forEach(cb => {
+                const id = parseInt(cb.value);
+                selectedIds.add(id);
+                cb.checked = true;
+            });
+        } else {
+            checkboxes.forEach(cb => {
+                const id = parseInt(cb.value);
+                selectedIds.delete(id);
+                cb.checked = false;
+            });
+        }
+        updateSelectButton();
+    };
+
+    function updateSelectAllCheckbox() {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+        document.getElementById('selectAll').checked = allChecked;
+    }
+
+    function updateSelectButton() {
+        const count = selectedIds.size;
+        document.getElementById('selectedCount').innerText = count;
+        document.getElementById('btnDelSelected').disabled = count === 0;
+    }
+
+    // 6. 删除功能
+    window.deleteSelected = async function() {
+        if (selectedIds.size === 0) return;
+        if (!confirm(`确定要删除选中的 ${selectedIds.size} 条数据吗？此操作不可恢复！`)) return;
+
+        const idsArray = Array.from(selectedIds);
+        
+        const { error } = await supabase
+            .from(EVAL_TABLE_NAME)
+            .delete()
+            .in('id', idsArray);
+
+        if (error) {
+            showToast('删除失败: ' + error.message, 'error');
+        } else {
+            showToast(`成功删除 ${idsArray.length} 条数据`, 'success');
+            fetchTotalCount(); // 重新加载
+        }
+    };
+
+    window.deleteAllData = async function() {
+        if (!confirm('⚠️ 严重警告：你即将清空整个数据表的所有数据！\n\n此操作无法撤销，确定要继续吗？')) return;
+        if (!confirm('再次确认：真的要删除所有数据吗？')) return;
+
+        showLoading(true);
+        // 注意：如果数据量极大，可能需要分批删除
+        const { error } = await supabase
+            .from(EVAL_TABLE_NAME)
+            .delete()
+            .neq('id', 0); 
+
+        showLoading(false);
+
+        if (error) {
+            showToast('清空失败: ' + error.message, 'error');
+        } else {
+            showToast('数据表已清空', 'success');
+            fetchTotalCount();
+        }
+    };
+
+    // 7. 导出 Excel (CSV)
+    window.exportToExcel = async function() {
+        showToast('正在准备导出数据...', 'success');
+        
+        const { data, error } = await supabase
+            .from(EVAL_TABLE_NAME)
+            .select('id, eval_date, topic, tool_name, domain_code, rating, description, issues, created_at')
+            .order('created_at', { ascending: false });
+
+        if (error) {
+            showToast('导出失败: ' + error.message, 'error');
+            return;
+        }
+
+        const formattedData = data.map(row => ({
+            "ID": row.id,
+            "评价日期": row.eval_date,
+            "课题名称": row.topic,
+            "使用工具": row.tool_name,
+            "决策域": row.domain_code,
+            "评分 (1-5)": row.rating,
+            "效果描述": row.description,
+            "问题与建议": row.issues,
+            "系统提交时间": row.created_at ? new Date(row.created_at).toLocaleString() : ''
+        }));
+
+        const csv = Papa.unparse(formattedData);
+        const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `自评数据导出_${new Date().toISOString().slice(0,10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast('导出成功！', 'success');
+    };
+
+    // 工具函数
+    function showLoading(show) {
+        const loading = document.getElementById('loading');
+        const table = document.getElementById('dataTable');
+        if(loading) loading.style.display = show ? 'block' : 'none';
+        if(table) table.style.opacity = show ? '0.5' : '1';
+    }
+
+    function showToast(msg, type) {
+        const toast = document.getElementById('toast');
+        if(!toast) return;
+        toast.innerText = msg;
+        toast.className = `toast ${type}`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+</script>
+
+</body>
+</html>

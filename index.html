@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI赋能教师决策工具包 v5.0</title>
+    <!-- 引入外部 CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <h1 class="school-title">AI赋能教师决策工具包</h1>
+    <p class="page-title">智能辅助 · 循证实践 · 持续迭代</p>
+    <p class="subtitle">本工具包是课题"AI赋能教师决策的实践研究"的核心成果，基于多课例实践提炼而成。<br>涵盖六大决策域分类、AI-TPC循证教学法、工具速查、效果自评与决策日记五大模块。</p>
+</header>
+
+<div class="container">
+    <!-- 导航标签 -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showSection('home')">🏠 首页</button>
+        <button class="nav-tab" onclick="showSection('diagnosis')">🔍 决策诊断</button>
+        <button class="nav-tab" onclick="showSection('domains')">🎯 六大决策域</button>
+        <button class="nav-tab" onclick="showSection('tools')">🛠 工具速查</button>
+        <button class="nav-tab" onclick="showSection('method')">📚 AI-TPC教学法</button>
+        <button class="nav-tab" onclick="showSection('fiveSteps')">🪜 五步融入法</button>
+        <button class="nav-tab" onclick="showSection('eval')">📊 效果自评</button>
+        <button class="nav-tab" onclick="showSection('journal')">📓 决策日记</button>
+    </div>
+
+    <!-- 首页 -->
+    <div id="home" class="content-section active">
+        <div class="hero-banner">
+            <div class="hero-title">🚀 快速入口 - 您想从哪里开始？</div>
+            <div class="hero-sub">无论您是AI零基础还是有一定经验，都可以从这里找到适合的起点。点击卡片快速进入对应功能模块。</div>
+            <div class="hero-badges">
+                <span class="hero-badge badge-purple">✅ 多课例验证</span>
+                <span class="hero-badge badge-green">✅ 覆盖学科：科学·音乐·体育·思政</span>
+                <span class="hero-badge badge-orange">✅ AI零基础可用</span>
+            </div>
+        </div>
+        <div class="quick-entry-grid">
+            <div class="quick-entry-card" onclick="showSection('diagnosis')">
+                <div class="qe-header"><span class="qe-icon">🔍</span><span class="qe-badge">自</span></div>
+                <h4>我不确定该用什么AI工具</h4>
+                <p>通过简单问答，帮你识别主要决策困境，推荐最合适的AI辅助方案和工具。</p>
+                <span class="qe-tag">→ 开始诊断</span>
+            </div>
+            <div class="quick-entry-card" onclick="showSection('domains')">
+                <div class="qe-header"><span class="qe-icon">🎯</span><span class="qe-badge">域</span></div>
+                <h4>我想按决策域查找工具</h4>
+                <p>六大决策域：学情诊断→目标设定→内容选择→方法匹配→过程调控→评价反馈</p>
+                <span class="qe-tag">→ 浏览六大域</span>
+            </div>
+            <div class="quick-entry-card" onclick="showSection('method')">
+                <div class="qe-header"><span class="qe-icon">📚</span><span class="qe-badge">法</span></div>
+                <h4>我想了解AI+教学法怎么融合</h4>
+                <p>AI-TPC循证教学法：诊断→设计→实施→评价→反思，基于真实课例归纳而成。</p>
+                <span class="qe-tag">→ 查看教学法</span>
+            </div>
+            <div class="quick-entry-card" onclick="showSection('tools')">
+                <div class="qe-header"><span class="qe-icon">🛠</span><span class="qe-badge">查</span></div>
+                <h4>我想快速查工具</h4>
+                <p>14+个AI工具速查：按决策域筛选，查看核心功能、适用场景、操作方法。</p>
+                <span class="qe-tag">→ 工具速查</span>
+            </div>
+            <div class="quick-entry-card" onclick="showSection('eval')">
+                <div class="qe-header"><span class="qe-icon">📊</span><span class="qe-badge">评</span></div>
+                <h4>用完AI想记录效果</h4>
+                <p>效果自评表：多维度评分+综合结论，为课题研究积累数据。</p>
+                <span class="qe-tag">→ 填写自评</span>
+            </div>
+            <div class="quick-entry-card" onclick="showSection('journal')">
+                <div class="qe-header"><span class="qe-icon">📓</span><span class="qe-badge">记</span></div>
+                <h4>想记录关键教学决策时刻</h4>
+                <p>决策日记：让隐性的教学决策显性化，沉淀可迁移的研究经验。</p>
+                <span class="qe-tag">→ 写决策日记</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 决策诊断 -->
+    <div id="diagnosis" class="content-section">
+        <div class="tip-box">💡 通过简单问答，帮你识别主要决策困境，推荐最合适的AI辅助方案。</div>
+        <div id="diagnosisQuiz">
+            <div class="tool-card" style="margin-bottom: 20px;">
+                <div class="card-header"><div class="tool-category">决策困境诊断</div><div class="tool-name">请回答以下问题</div></div>
+                <div class="card-body" id="quizContent">
+                    <!-- 动态内容由 JS 生成 -->
+                </div>
+            </div>
+        </div>
+        <div id="diagnosisResult" style="display: none;"></div>
+    </div>
+
+    <!-- 六大决策域 -->
+    <div id="domains" class="content-section">
+        <div class="tip-box">💡 点击任意决策域查看详细说明和推荐工具</div>
+        <div id="domainsContainer"></div>
+        <div id="domainDetail" style="display: none; margin-top: 20px;"></div>
+    </div>
+
+    <!-- 工具速查 -->
+    <div id="tools" class="content-section">
+        <div class="filter-container" id="toolFilterContainer"></div>
+        <div class="tools-grid" id="toolsGrid"></div>
+    </div>
+
+    <!-- AI-TPC教学法 (静态内容保持不变) -->
+    <div id="method" class="content-section">
+        <div class="tip-box">💡 <strong>重要区分：</strong>AI-TPC五步是"课堂教学流程"，与后面"五步融入法"（教师使用AI的方法论）不同，请勿混淆。</div>
+        <div class="tool-card" style="margin-bottom: 20px;">
+            <div class="card-header"><div class="tool-category">教学法框架</div><div class="tool-name">AI-TPC循证教学法</div></div>
+            <div class="card-body">
+                <div class="tool-section"><div class="section-title">核心概念</div><div class="section-content">基于多课例实践和TPC框架（P教法-C教材-T科技融合）归纳而成。不是理论推导，而是从实践中长出来的。</div></div>
+                <div class="tool-section"><div class="section-title">五步流程（课堂教学）</div><div class="section-content">① <strong>诊断（Diagnose）</strong>→ ② <strong>设计（Design）</strong>→ ③ <strong>实施（Deliver）</strong>→ ④ <strong>评价（Evaluate）</strong>→ ⑤ <strong>反思（Reflect）</strong></div></div>
+            </div>
+        </div>
+        <h3 style="color: var(--primary-purple); margin: 30px 0 20px;">三种融合模式</h3>
+        <div class="tools-grid">
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"><div class="tool-category">模式一</div><div class="tool-name">精准靶向模式</div></div><div class="card-body"><div class="section-content"><strong>核心：</strong>利用AI进行学情精准诊断，实现个性化教学决策。<br><br><strong>适用：</strong>学情差异大、需要分层教学的班级。<br><br><strong>典型工具：</strong>豆包智能体、醍摩豆IRS、ASR语音分析</div></div></div>
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #3498db, #2980b9);"><div class="tool-category">模式二</div><div class="tool-name">设计增强模式</div></div><div class="card-body"><div class="section-content"><strong>核心：</strong>借助AI辅助教学设计，提升教学方案的科学性和创新性。<br><br><strong>适用：</strong>备课环节，快速生成高质量教学资源。<br><br><strong>典型工具：</strong>即梦AI、大语言模型、智能备课系统</div></div></div>
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #27ae60, #229954);"><div class="tool-category">模式三</div><div class="tool-name">协同教学模式</div></div><div class="card-body"><div class="section-content"><strong>核心：</strong>人机协同，AI提供数据支持，教师进行专业判断和决策。<br><br><strong>适用：</strong>课堂教学过程调控环节。<br><br><strong>典型工具：</strong>智慧手环、课堂互动工具、实时数据分析</div></div></div>
+        </div>
+    </div>
+
+    <!-- 五步融入法 (静态内容保持不变) -->
+    <div id="fiveSteps" class="content-section">
+        <div class="tip-box">💡 <strong>重要区分：</strong>五步融入法是"教师使用AI的方法论"，与AI-TPC五步（课堂教学流程）不同，请勿混淆。</div>
+        <div class="tool-card" style="margin-bottom: 20px;">
+            <div class="card-header" style="background: linear-gradient(135deg, #f39c12, #e67e22);"><div class="tool-category">教师AI使用指南</div><div class="tool-name">五步融入法</div></div>
+            <div class="card-body"><div class="tool-section"><div class="section-title">核心概念</div><div class="section-content">指导教师如何将AI工具有效融入教学决策的系统方法论。从需求出发，到反思优化，形成闭环。</div></div></div>
+        </div>
+        <div class="tools-grid">
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);"><div class="tool-category">第一步</div><div class="tool-name">需求分析 🔍</div></div><div class="card-body"><div class="section-content"><strong>做什么：</strong>明确教学中需要AI辅助的具体环节和决策困境<br><br><strong>关键问题：</strong><br>• 当前教学决策中遇到什么困难？<br>• 哪个决策域最需要AI支持？<br>• 期望AI解决什么问题？</div></div></div>
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #3498db, #2980b9);"><div class="tool-category">第二步</div><div class="tool-name">工具选择 🛠</div></div><div class="card-body"><div class="section-content"><strong>做什么：</strong>根据需求匹配合适的AI工具<br><br><strong>选择标准：</strong><br>• 功能是否满足需求？<br>• 操作难度是否适合？<br>• 是否符合学校技术环境？<br>• 是否保护学生隐私？</div></div></div>
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #1abc9c, #16a085);"><div class="tool-category">第三步</div><div class="tool-name">策略设计 📐</div></div><div class="card-body"><div class="section-content"><strong>做什么：</strong>设计AI工具与教学活动的融合策略<br><br><strong>设计要点：</strong><br>• 何时使用AI？（课前/课中/课后）<br>• 如何使用AI？（教师用/学生用/协同用）<br>• 如何收集和分析数据？</div></div></div>
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #e67e22, #d35400);"><div class="tool-category">第四步</div><div class="tool-name">实践应用 🚀</div></div><div class="card-body"><div class="section-content"><strong>做什么：</strong>在真实课堂中实施AI辅助教学<br><br><strong>注意事项：</strong><br>• 提前测试工具，确保稳定运行<br>• 准备备选方案，防止技术故障<br>• 关注学生反应，灵活调整<br>• 记录关键决策时刻</div></div></div>
+            <div class="tool-card"><div class="card-header" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"><div class="tool-category">第五步</div><div class="tool-name">反思优化 🔄</div></div><div class="card-body"><div class="section-content"><strong>做什么：</strong>评估效果，总结经验，持续改进<br><br><strong>反思维度：</strong><br>• AI辅助是否达到了预期目标？<br>• 学生的参与度和学习效果如何？<br>• 有哪些可以改进的地方？<br>• 是否可以迁移到其他教学场景？</div></div></div>
+        </div>
+    </div>
+
+    <!-- 效果自评 -->
+    <div id="eval" class="content-section">
+        <div class="tip-box">📊 每次使用AI工具辅助教学后，请花2分钟填写此表。你的评价数据将作为课题研究的重要依据。</div>
+        <div class="tool-card">
+            <div class="card-header"><div class="tool-category">效果评估</div><div class="tool-name">AI辅助教学效果自评表</div></div>
+            <div class="card-body">
+                <form id="evalForm" onsubmit="saveEval(event)">
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">日期</label><input type="date" id="evalDate" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px;"></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">课题/课例名称</label><input type="text" id="evalTopic" placeholder="如：《地球的形状》" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px;"></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">使用的AI工具</label><select id="evalTool" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px;"><option value="">请选择工具</option><option value="豆包智能体">豆包智能体</option><option value="醍摩豆IRS">醍摩豆IRS</option><option value="即梦AI">即梦AI</option><option value="智慧手环">智慧手环</option><option value="思政智能体">思政智能体"藤宝"</option><option value="ASR语音识别">ASR语音识别</option><option value="其他">其他</option></select></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">决策域</label><select id="evalDomain" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px;"><option value="">请选择决策域</option><option value="A. 学情诊断">A. 学情诊断</option><option value="B. 目标设定">B. 目标设定</option><option value="C. 内容选择">C. 内容选择</option><option value="D. 方法匹配">D. 方法匹配</option><option value="E. 过程调控">E. 过程调控</option><option value="F. 评价反馈">F. 评价反馈</option></select></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">效果评分（1-5分）</label><div style="display: flex; gap: 10px; flex-wrap: wrap;"><label style="display: flex; align-items: center; gap: 5px; cursor: pointer;"><input type="radio" name="rating" value="1"> 1分</label><label style="display: flex; align-items: center; gap: 5px; cursor: pointer;"><input type="radio" name="rating" value="2"> 2分</label><label style="display: flex; align-items: center; gap: 5px; cursor: pointer;"><input type="radio" name="rating" value="3"> 3分</label><label style="display: flex; align-items: center; gap: 5px; cursor: pointer;"><input type="radio" name="rating" value="4"> 4分</label><label style="display: flex; align-items: center; gap: 5px; cursor: pointer;"><input type="radio" name="rating" value="5"> 5分</label></div></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">具体效果描述</label><textarea id="evalDesc" rows="3" placeholder="描述AI工具如何帮助您做出更好的教学决策..." style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px; resize: vertical;"></textarea></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">遇到的问题或改进建议</label><textarea id="evalIssue" rows="2" placeholder="如有问题或建议，请在此填写..." style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px; resize: vertical;"></textarea></div>
+                    <button type="submit" style="padding: 12px 30px; background: var(--primary-purple); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%;">上传评价</button>
+                </form>
+                <div id="evalSaved" style="display: none; margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724;">✅ 评价已上传！感谢您的反馈，这些数据将帮助我们改进工具包。</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 决策日记 -->
+    <div id="journal" class="content-section">
+        <div class="tip-box">📓 记录关键教学决策时刻，让隐性的教学决策显性化，沉淀可迁移的研究经验。</div>
+        <div class="tool-card">
+            <div class="card-header"><div class="tool-category">经验沉淀</div><div class="tool-name">教学决策日记</div></div>
+            <div class="card-body">
+                <form id="journalForm" onsubmit="saveJournal(event)">
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">日期</label><input type="date" id="journalDate" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px;"></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">课例/教学情境</label><input type="text" id="journalCase" placeholder="如：科学课《地球的形状》导入环节" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px;"></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">决策域</label><select id="journalDomain" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px;"><option value="">请选择决策域</option><option value="A. 学情诊断">A. 学情诊断</option><option value="B. 目标设定">B. 目标设定</option><option value="C. 内容选择">C. 内容选择</option><option value="D. 方法匹配">D. 方法匹配</option><option value="E. 过程调控">E. 过程调控</option><option value="F. 评价反馈">F. 评价反馈</option></select></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">决策困境/问题</label><textarea id="journalProblem" rows="2" placeholder="当时面临什么教学决策难题？" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px; resize: vertical;"></textarea></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">AI辅助决策过程</label><textarea id="journalProcess" rows="3" placeholder="使用了什么AI工具？如何帮助您做出决策？" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px; resize: vertical;"></textarea></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">决策结果与效果</label><textarea id="journalResult" rows="2" placeholder="决策实施后的效果如何？学生反应怎样？" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px; resize: vertical;"></textarea></div>
+                    <div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-purple);">经验反思</label><textarea id="journalReflect" rows="2" placeholder="有什么可以总结的经验？下次如何改进？" style="width: 100%; padding: 10px; border: 2px solid var(--border-purple); border-radius: 8px; font-size: 14px; resize: vertical;"></textarea></div>
+                    <button type="submit" style="padding: 12px 30px; background: var(--primary-purple); color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; width: 100%;">保存日记</button>
+                </form>
+                <div id="journalSaved" style="display: none; margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724;">✅ 日记已保存！您的经验将成为课题研究的宝贵资料。</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-overlay" id="toolModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalToolName">工具名称</h2>
+            <div class="modal-category" id="modalToolCategory">学科</div>
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<footer>
+    <p>本工具包是课题"AI赋能教师决策的实践研究"的核心成果</p>
+    <p>© 2025-2026 AI赋能教师决策课题组</p>
+</footer>
+
+<!-- 引入外部 JS (注意顺序：先数据，后逻辑) -->
+<!-- 1. 引入 Supabase 客户端库 (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- 2. 引入你的配置文件 (注意 type="module") -->
+<script type="module" src="js/config.js"></script>
+<!-- 3. 引入数据文件 -->
+<script src="js/data.js"></script>
+<!-- 4. 引入主逻辑文件 (注意 type="module"，因为我们要导入 config) -->
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
